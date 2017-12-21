@@ -1,0 +1,25 @@
+{
+  "name": "deform",
+  "version": "0.0.1",
+  "description": "A Typescript library for declaratively creating forms.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/intern",
+    "start": "intern serveOnly",
+    "build_source": "start node_modules\\.bin\\tsc -w",
+    "build_specs": "start node_modules\\.bin\\tsc -p specs -w",
+    "build": "npm run build_source && npm run build_specs",
+    "dev": "npm run build && start npm run start && start http://localhost:9000/__intern"
+  },
+  "author": "Miro Koprnicky",
+  "repository": {
+    "type": "git", 
+    "url": "https://github.com/NetsydeMiro/deforms.git"
+  },
+  "dependencies": {
+    "intern": "^4.1.4",
+    "reflect-metadata": "^0.1.10",
+    "systemjs": "^0.20.19",
+    "typescript": "^2.6.2"
+  }
+}

@@ -1,0 +1,18 @@
+{
+    "suites": "build/specs/**/*.js",
+    "environments": [
+        "node", 
+        "chrome"
+    ],
+    "coverage": [
+        "build/src/**/*.js", 
+        "!build/src/config.js"
+    ], 
+    "browser": {
+        "loader": "systemjs",
+        "plugins": {
+            "script": "build/src/config.js",
+            "useLoader": true
+        }
+    }
+}
