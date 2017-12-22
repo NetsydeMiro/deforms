@@ -1,8 +1,7 @@
 {
     "suites": "build/specs/**/*.js",
     "environments": [
-        "node", 
-        "chrome"
+        "node"
     ],
     "coverage": [
         "build/src/**/*.js", 
