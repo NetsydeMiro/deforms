@@ -15,10 +15,12 @@
     "type": "git", 
     "url": "https://github.com/NetsydeMiro/deforms.git"
   },
-  "dependencies": {
+  "devDependencies": {
     "intern": "^4.1.4",
-    "reflect-metadata": "^0.1.10",
     "systemjs": "^0.20.19",
     "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.10"
   }
 }
