@@ -6,16 +6,18 @@
   "scripts": {
     "test": "intern",
     "start": "intern serveOnly",
+    "report_coverage": "cat coverage/lcov.info | coveralls",
     "build": "tsc && tsc -p specs",
     "watch": "tsc -w && tsc -p specs -w",
     "dev_win": "start npm run watch && start npm run start && start http://localhost:9000/__intern"
   },
   "author": "Miro Koprnicky",
   "repository": {
-    "type": "git", 
+    "type": "git",
     "url": "https://github.com/NetsydeMiro/deforms.git"
   },
   "devDependencies": {
+    "coveralls": "^3.0.0",
     "intern": "^4.1.4",
     "systemjs": "^0.20.19",
     "typescript": "^2.6.2"
