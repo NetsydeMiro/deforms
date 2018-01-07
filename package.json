@@ -7,6 +7,7 @@
     "test": "intern",
     "start": "intern serveOnly",
     "report_coverage": "cat coverage/lcov.info | coveralls",
+    "clean": "rm -rf build coverage", 
     "build": "tsc && tsc -p specs",
     "watch": "tsc -w && tsc -p specs -w",
     "dev_win": "start npm run watch && start npm run start && start http://localhost:9000/__intern"
