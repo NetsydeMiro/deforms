@@ -11,7 +11,7 @@ interface Relation<DescribedInterface> {
 
 type Attribute = string | number
 
-class Describer<DescribedInterface> {
+class DeScriber<DescribedInterface> {
 
     setValue = (attribute: Attribute, value: any) => {
         return this.setRelation(attribute, value)
@@ -39,4 +39,4 @@ class Describer<DescribedInterface> {
     }
 }
 
-export default Describer
+export default DeScriber
