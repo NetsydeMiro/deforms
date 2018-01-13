@@ -10,6 +10,15 @@ interface TestInterface {
     aDate: Date
 }
 
+class TestDefinition implements TestInterface {
+    aString: string
+    aBoolean: boolean
+    aNumber: number
+    aDate: Date
+}
+
+let testDefinition = new TestDefinition()
+
 let current: TestInterface = {
     aString: 'currentString', 
     aBoolean: true, 
@@ -36,9 +45,12 @@ let formState: FormState<TestInterface>
 describe("createFormState", () => {
     describe("defaults", () => {
         beforeEach(() => {
-            formState = createFormState(current)
+            formState = createFormState(testDefinition, current)
         })
         it('sets isSelected falsy', () => {
+            expect(formState.isSelected).to.not.be.ok
+        })
+        it('sets isDeleted falsy', () => {
             expect(formState.isSelected).to.not.be.ok
         })
         it('sets current values', () => {
@@ -62,7 +74,7 @@ describe("createFormState", () => {
     })
     describe("all values specified", () => {
         beforeEach(() => {
-            formState = createFormState(current, original, suggested)
+            formState = createFormState(testDefinition, current, original, suggested)
         })
         it('sets current values', () => {
             expect(formState.aString.current).to.equal(current.aString)

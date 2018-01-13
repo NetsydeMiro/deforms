@@ -13,6 +13,7 @@ type StringAttributeType = "StringRelation1" | "StringRelation2"
 
 interface TestInterface {
     aString: string
+    anotherString: string
     aBoolean: boolean
     aNumber: number
     aDate: Date
@@ -21,8 +22,11 @@ interface TestInterface {
 let scriber = new DeScriber<TestInterface>()
 
 class TestClass implements TestInterface {
-    @scriber.setValue(EnumAttributeType.FieldDescription, 'This is a string')
+    @scriber.setAttribute(EnumAttributeType.FieldDescription, 'This is a string')
     aString: string
+
+    @scriber.setRelation(EnumAttributeType.RelatedField, null, 'aBoolean')
+    anotherString: string 
 
     @scriber.setRelation(EnumAttributeType.RelatedField, null, 'aString')
     aBoolean: boolean
@@ -30,14 +34,14 @@ class TestClass implements TestInterface {
     @scriber.setRelation(EnumAttributeType.SiblingField, 'lucky number is a sibling to string and bool', 'aString', 'aBoolean')
     aNumber: number
 
-    @scriber.setValue(EnumAttributeType.FieldDescription, 'This is a date')
+    @scriber.setAttribute(EnumAttributeType.FieldDescription, 'This is a date')
     aDate: Date
 }
 
 let testDefinition = new TestClass()
 
-describe("Describer", () => {
-    describe("setValue", () => {
+describe("DeScriber", () => {
+    describe("setAttribute", () => {
         it("sets the type (string)", () => {
             let typ = scriber.getType(testDefinition, 'aString')
             expect(typ).to.equal(String)
@@ -46,8 +50,8 @@ describe("Describer", () => {
             let typ = scriber.getType(testDefinition, 'aDate')
             expect(typ).to.equal(Date)
         })
-        it("sets the value", () => {
-            let description = scriber.getValue(testDefinition, EnumAttributeType.FieldDescription, 'aString')
+        it("sets the attribute", () => {
+            let description = scriber.getAttribute(testDefinition, EnumAttributeType.FieldDescription, 'aString')
             expect(description).to.equal('This is a string')
         })
     })
@@ -71,6 +75,18 @@ describe("Describer", () => {
         it("sets the value along with the relation", () => {
             let description = scriber.getRelation(testDefinition, EnumAttributeType.SiblingField, 'aNumber')
             expect(description.value).to.equal('lucky number is a sibling to string and bool')
+        })
+    })
+    describe("getAttributed", () => {
+        it('gets all fields marked with that attribute type', () => {
+            let fields = scriber.getAttributed(testDefinition, EnumAttributeType.FieldDescription)
+            expect(fields).to.have.members(['aDate', 'aString'])
+        })
+    })
+    describe("getRelated", () => {
+        it('gets all fields marked with that relation type', () => {
+            let fields = scriber.getRelated(testDefinition, EnumAttributeType.RelatedField)
+            expect(fields).to.have.members(['aBoolean', 'anotherString'])
         })
     })
 })

@@ -10,7 +10,7 @@
     "clean": "rm -rf build coverage", 
     "build": "tsc && tsc -p specs",
     "watch": "start tsc -w && start tsc -p specs -w",
-    "dev_win": "npm run watch && npm run start && start http://localhost:9000/__intern"
+    "dev_win": "npm run watch && start npm run start && start http://localhost:9000/__intern"
   },
   "author": "Miro Koprnicky",
   "repository": {
