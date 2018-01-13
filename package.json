@@ -9,8 +9,8 @@
     "report_coverage": "cat coverage/lcov.info | coveralls",
     "clean": "rm -rf build coverage", 
     "build": "tsc && tsc -p specs",
-    "watch": "tsc -w && tsc -p specs -w",
-    "dev_win": "start npm run watch && start npm run start && start http://localhost:9000/__intern"
+    "watch": "start tsc -w && start tsc -p specs -w",
+    "dev_win": "npm run watch && npm run start && start http://localhost:9000/__intern"
   },
   "author": "Miro Koprnicky",
   "repository": {
