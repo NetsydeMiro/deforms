@@ -1,6 +1,6 @@
 import Value from './Value'
 import DeScriber, { DeScanner } from './DeScriber'
-import FormState from './FormState'
+import DeFormState from './DeFormState'
 
 enum FieldType {
     SubForm
@@ -33,7 +33,7 @@ export class DeForm<T> {
         return this._scanner.attributed(FieldType.SubForm) || []
     }
 
-    formState(current: T, original?: T, suggested?: T, subFormDefinition: any = null): FormState<T> {
+    formState(current: T, original?: T, suggested?: T, subFormDefinition: any = null): DeFormState<T> {
         let value = {}
         let subFormFields = this.subFormFields()
 
@@ -50,7 +50,7 @@ export class DeForm<T> {
             }
         }
 
-        return value as FormState<T>
+        return value as DeFormState<T>
     }
 }
 

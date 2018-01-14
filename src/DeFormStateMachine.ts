@@ -1,6 +1,6 @@
 import { clone } from './utility'
 import DeScriber from './DeScriber'
-import FormState, { FormStatify } from './FormState'
+import DeFormState, { DeFormStatify } from './DeFormState'
 
 interface FormSelectorStep {
     field: string
@@ -9,10 +9,10 @@ interface FormSelectorStep {
 export class DeFormStateMachine<T> {
     constructor(private formDefinition: T) { }
 
-    set<K extends keyof T>(formState: FormStatify<T>, field: K, value: T[K]): FormState<T> 
-    set(formState: FormStatify<T>, field: string, value: any, selector: Array<FormSelectorStep>): FormState<T> 
+    set<K extends keyof T>(formState: DeFormStatify<T>, field: K, value: T[K]): DeFormState<T> 
+    set(formState: DeFormStatify<T>, field: string, value: any, selector: Array<FormSelectorStep>): DeFormState<T> 
 
-    set(formState: FormStatify<T>, field: string, value: any, selector: Array<FormSelectorStep> = []): FormState<T> {
+    set(formState: DeFormStatify<T>, field: string, value: any, selector: Array<FormSelectorStep> = []): DeFormState<T> {
         let newState = clone(formState)
 
         if (selector.length == 0) {
@@ -29,13 +29,13 @@ export class DeFormStateMachine<T> {
         return newState
     }
 
-    setSelected(formState: FormState<T>, isSelected = true): FormState<T> {
+    setSelected(formState: DeFormState<T>, isSelected = true): DeFormState<T> {
         let newState = clone(formState)
         newState.isSelected = isSelected
         return newState
     }
 
-    setDeleted(formState: FormState<T>, isDeleted = true): FormState<T> {
+    setDeleted(formState: DeFormState<T>, isDeleted = true): DeFormState<T> {
         let newState = clone(formState)
         newState.isDeleted = isDeleted
         return newState

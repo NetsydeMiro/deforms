@@ -30,17 +30,17 @@ declare global {
     }
 }
 
-type Fieldify<T extends any> = Case<T['**__DeForm_FieldType**'], Value<T>, FormState<T>, Array<FormState<T['**__DeForm_ArrayType**']>>>
+type Fieldify<T extends any> = Case<T['**__DeForm_FieldType**'], Value<T>, DeFormState<T>, Array<DeFormState<T['**__DeForm_ArrayType**']>>>
 
-export type FormStatify<T> = {
+export type DeFormStatify<T> = {
     [k in keyof T]: Fieldify<T[k]> 
 }
 
-interface FormStateFields<T> {
+interface DeFormStateFields<T> {
     isSelected?: boolean
     isDeleted?: boolean
 }
 
-export type FormState<T> = FormStatify<T> & FormStateFields<T>
+export type DeFormState<T> = DeFormStatify<T> & DeFormStateFields<T>
 
-export default FormState
+export default DeFormState

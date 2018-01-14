@@ -2,7 +2,7 @@ const { describe, it, beforeEach } = intern.getInterface('bdd')
 const { expect } = intern.getPlugin('chai')
 
 import DeScriber from '../src/DeScriber'
-import FormState from '../src/FormState'
+import DeFormState from '../src/DeFormState'
 import DeForm, { DeFormAttribute } from '../src/DeForm'
 import DeFormStateMachine from '../src/DeFormStateMachine'
 
@@ -44,7 +44,7 @@ let deform = new DeForm(testDefinition)
 
 let deformStateMachine = new DeFormStateMachine(testDefinition)
 
-let testState: FormState<TestInterface> 
+let testState: DeFormState<TestInterface> 
 
 describe("DeFormState", () => {
     beforeEach(() => {

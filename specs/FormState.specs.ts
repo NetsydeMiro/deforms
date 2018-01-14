@@ -1,7 +1,7 @@
 const { describe, it, beforeEach } = intern.getInterface('bdd')
 const { expect } = intern.getPlugin('chai')
 
-import FormState from '../src/FormState'
+import DeFormState from '../src/DeFormState'
 import DeForm from '../src/DeForm'
 
 interface TestInterface {
@@ -43,7 +43,7 @@ let suggested: TestInterface = {
 
 
 let deform = new DeForm(testDefinition)
-let formState: FormState<TestInterface> 
+let formState: DeFormState<TestInterface> 
 
 describe("createFormState", () => {
     describe("defaults", () => {
