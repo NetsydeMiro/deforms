@@ -1,6 +1,4 @@
 import Value from './Value'
-import DeForm from './DeForm'
-import { isArray, forceCast } from './utility'
 
 // adapted from https://stackoverflow.com/questions/46333496/typescript-complex-mapped-types-that-extract-generic
 // Hacked, since conditional mapped types are not yet part of the Typescript language spec
@@ -45,48 +43,4 @@ interface FormStateFields<T> {
 
 export type FormState<T> = FormStatify<T> & FormStateFields<T>
 
-export function createFormState<T>(definition: T, current: T, original?: T, suggested?: T): FormState<T> {
-    let value = {}
-    let deform = new DeForm<T>()
-    let subFormFields = deform.getSubFormFields(definition)
-
-    for (let key in current) {
-        if (subFormFields.indexOf(key) >= 0) {
-            let subFormDefinition = deform.getSubFormDefinition(definition, key)
-            value[key.toString()] = createFormState(subFormDefinition, current[key], original && original[key], suggested && suggested[key])
-        }
-        else {
-            value[key.toString()] = new Value(current[key], original && original[key], suggested && suggested[key])
-        }
-    }
-
-    return value as FormState<T>
-}
-
 export default FormState
-
-/*
-interface TestInterface {
-    aString: string
-    aBoolean: boolean
-    aDate: Date
-    anObject: TestInterface
-    anArray: Array<TestInterface>
-}
-
-let test: TestInterface = {
-    aString: 'jack', 
-    aBoolean: true, 
-    aDate: new Date(), 
-    anObject: {
-        aString: 'jack', 
-        aBoolean: true, 
-        aDate: new Date(), 
-        anObject: null, 
-        anArray: []
-    }, 
-    anArray: []
-}
-
-let formified = createFormState(test)
-*/

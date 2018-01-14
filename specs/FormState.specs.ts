@@ -1,7 +1,8 @@
 const { describe, it, beforeEach } = intern.getInterface('bdd')
 const { expect } = intern.getPlugin('chai')
 
-import { createFormState, FormState } from '../src/FormState'
+import FormState from '../src/FormState'
+import DeForm from '../src/DeForm'
 
 interface TestInterface {
     aString: string
@@ -40,12 +41,14 @@ let suggested: TestInterface = {
     aDate: new Date(2017, 1, 3)
 }
 
+
+let deform = new DeForm(testDefinition)
 let formState: FormState<TestInterface> 
 
 describe("createFormState", () => {
     describe("defaults", () => {
         beforeEach(() => {
-            formState = createFormState(testDefinition, current)
+            formState = deform.formState(current)
         })
         it('sets isSelected falsy', () => {
             expect(formState.isSelected).to.not.be.ok
@@ -74,7 +77,7 @@ describe("createFormState", () => {
     })
     describe("all values specified", () => {
         beforeEach(() => {
-            formState = createFormState(testDefinition, current, original, suggested)
+            formState = deform.formState(current, original, suggested)
         })
         it('sets current values', () => {
             expect(formState.aString.current).to.equal(current.aString)

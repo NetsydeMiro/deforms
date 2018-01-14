@@ -1,10 +1,12 @@
-import DeScriber from './DeScriber'
+import Value from './Value'
+import DeScriber, { DeScanner } from './DeScriber'
+import FormState from './FormState'
 
 enum FieldType {
     SubForm
 }
 
-export class DeForm<T> {
+export class DeFormAttribute<T> {
     private _scribe: DeScriber<T>
 
     constructor(){
@@ -12,15 +14,43 @@ export class DeForm<T> {
     }
 
     subForm<S>(subFormDefinition: S){
-        return this._scribe.setAttribute(FieldType.SubForm, subFormDefinition)
+        return this._scribe.attribute(FieldType.SubForm, subFormDefinition)
+    }
+}
+
+export class DeForm<T> {
+    _scanner: DeScanner<T>
+
+    constructor(private _formDefinition: T) {
+        this._scanner = new DeScanner<T>(_formDefinition)
     }
 
-    getSubFormDefinition(formDefinition: T, subFormField: keyof T) {
-        return this._scribe.getAttribute(formDefinition, FieldType.SubForm, subFormField)
+    subFormDefinition(subFormField: keyof T) {
+        return this._scanner.attribute(FieldType.SubForm, subFormField)
     }
 
-    getSubFormFields(formDefinition: T): Array<keyof T> {
-        return this._scribe.getAttributed(formDefinition, FieldType.SubForm) || []
+    subFormFields(): Array<keyof T> {
+        return this._scanner.attributed(FieldType.SubForm) || []
+    }
+
+    formState(current: T, original?: T, suggested?: T, subFormDefinition: any = null): FormState<T> {
+        let value = {}
+        let subFormFields = this.subFormFields()
+
+        let deform = this as DeForm<any>
+        if (subFormDefinition) deform = new DeForm<any>(subFormDefinition)
+
+        for (let key in current) {
+            if (subFormFields.indexOf(key) >= 0) {
+                let subFormDefinition = this.subFormDefinition(key)
+                value[key.toString()] = deform.formState(current[key], original && original[key], suggested && suggested[key])
+            }
+            else {
+                value[key.toString()] = new Value(current[key], original && original[key], suggested && suggested[key])
+            }
+        }
+
+        return value as FormState<T>
     }
 }
 

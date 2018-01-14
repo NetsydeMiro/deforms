@@ -6,7 +6,7 @@ interface FormSelectorStep {
     field: string
 }
 
-export class DeFormState<T> {
+export class DeFormStateMachine<T> {
     constructor(private formDefinition: T) { }
 
     set<K extends keyof T>(formState: FormStatify<T>, field: K, value: T[K]): FormState<T> 
@@ -42,4 +42,4 @@ export class DeFormState<T> {
     }
 }
 
-export default DeFormState
+export default DeFormStateMachine
