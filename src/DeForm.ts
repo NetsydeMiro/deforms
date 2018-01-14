@@ -1,6 +1,6 @@
 import Value from './Value'
 import DeScriber, { DeScanner } from './DeScriber'
-import DeFormState from './DeFormState'
+import DeFormState, { createFormState } from './DeFormState'
 
 enum FieldType {
     SubForm
@@ -25,6 +25,10 @@ export class DeForm<T> {
         this._scanner = new DeScanner<T>(_formDefinition)
     }
 
+    type(field: keyof T) {
+        return this._scanner.type(field)
+    }
+
     subFormDefinition(subFormField: keyof T) {
         return this._scanner.attribute(FieldType.SubForm, subFormField)
     }
@@ -33,24 +37,8 @@ export class DeForm<T> {
         return this._scanner.attributed(FieldType.SubForm) || []
     }
 
-    formState(current: T, original?: T, suggested?: T, subFormDefinition: any = null): DeFormState<T> {
-        let value = {}
-        let subFormFields = this.subFormFields()
-
-        let deform = this as DeForm<any>
-        if (subFormDefinition) deform = new DeForm<any>(subFormDefinition)
-
-        for (let key in current) {
-            if (subFormFields.indexOf(key) >= 0) {
-                let subFormDefinition = this.subFormDefinition(key)
-                value[key.toString()] = deform.formState(current[key], original && original[key], suggested && suggested[key])
-            }
-            else {
-                value[key.toString()] = new Value(current[key], original && original[key], suggested && suggested[key])
-            }
-        }
-
-        return value as DeFormState<T>
+    formState(current: T, original?: T, suggested?: T): DeFormState<T> {
+        return createFormState(this._formDefinition, current, original, suggested)
     }
 }
 

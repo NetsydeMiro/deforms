@@ -1,4 +1,7 @@
+import { forceCast } from './utility'
 import Value from './Value'
+import DeForm from './DeForm'
+import { debug } from 'util';
 
 // adapted from https://stackoverflow.com/questions/46333496/typescript-complex-mapped-types-that-extract-generic
 // Hacked, since conditional mapped types are not yet part of the Typescript language spec
@@ -42,5 +45,38 @@ interface DeFormStateFields<T> {
 }
 
 export type DeFormState<T> = DeFormStatify<T> & DeFormStateFields<T>
+
+export function createFormState<T>(subFormDefinition: T, current: T, original?: T, suggested?: T): DeFormState<T> {
+    let value = {}
+
+    let deform = new DeForm<any>(subFormDefinition)
+    let subFormFields = deform.subFormFields()
+
+    for (let key in current) {
+        if (subFormFields.indexOf(key) >= 0) {
+            let subFormDefinition = deform.subFormDefinition(key)
+            let type = deform.type(key)
+
+            if (type == Array) {
+                // subform array
+                value[key.toString()] = (forceCast<Array<any>>(current[key])).map((current, ix) => {
+                    return createFormState(subFormDefinition, 
+                        current, 
+                        original && original[key] && original[key][ix], 
+                        suggested && suggested[key] && suggested[key][ix])
+                })
+            }
+            else {
+                // single embedded subform
+                value[key.toString()] = createFormState(subFormDefinition, current[key], original && original[key], suggested && suggested[key])
+            }
+        }
+        else {
+            value[key.toString()] = new Value(current[key], original && original[key], suggested && suggested[key])
+        }
+    }
+
+    return value as DeFormState<T>
+}
 
 export default DeFormState
