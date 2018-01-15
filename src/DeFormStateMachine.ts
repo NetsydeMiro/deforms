@@ -1,9 +1,9 @@
-import { clone } from './utility'
-import DeScriber from './DeScriber'
+import { clone, isUndefined } from './utility'
 import DeFormState, { DeFormStatify } from './DeFormState'
 
 interface FormSelectorStep {
     field: string
+    index?: number
 }
 
 export class DeFormStateMachine<T> {
@@ -23,7 +23,15 @@ export class DeFormStateMachine<T> {
             let step = selector[0]
             let newSelector = selector.slice(1)
 
-            newState[step.field] = this.set(newState[step.field], field, value, newSelector)
+            if (step.index || step.index === 0) {
+                // subform array
+                newState[step.field] = newState[step.field].slice()
+                newState[step.field][step.index] = this.set(newState[step.field][step.index], field, value, newSelector)
+            }
+            else {
+                // embedded subform
+                newState[step.field] = this.set(newState[step.field], field, value, newSelector)
+            }
         }
 
         return newState
