@@ -13,7 +13,7 @@ let attribute = new DeFormAttribute<TestInterface>()
 
 class TestDefinition implements TestInterface {
     aString: string
-    @attribute.subForm(new TestDefinition(), true)
+    @attribute.subForm({ definition: new TestDefinition(), noRecordMatching: true })
     aSubFormArray?: Array<TestInterface>
 }
 

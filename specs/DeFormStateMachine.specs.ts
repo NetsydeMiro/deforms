@@ -45,10 +45,10 @@ class TestDefinition implements TestInterface {
     aString: string
     aNumber: number
 
-    @attribute.subForm(new TestDefinition())
+    @attribute.subForm({ definition: new TestDefinition() })
     aSubForm?: TestInterface
 
-    @attribute.subForm(new TestDefinition())
+    @attribute.subForm({ definition: new TestDefinition()})
     aSubFormArray?: Array<TestInterface>
 }
 

@@ -47,16 +47,16 @@ interface DeFormStateFields<T> {
 
 export type DeFormState<T> = DeFormStatify<T> & DeFormStateFields<T>
 
-export function createFormState<T>(subFormDefinition: T, current: T, original?: T, suggested?: T): DeFormState<T> {
+export function createFormState<T>(formDefinition: T, current: T, original?: T, suggested?: T): DeFormState<T> {
     let formState = forceCast<DeFormState<T>>({})
 
-    let deform = new DeForm<any>(subFormDefinition)
+    let deform = new DeForm<any>(formDefinition)
     let allFields = union(current && Object.keys(current), original && Object.keys(original), suggested && Object.keys(suggested))
-    let subFormFields = deform.subFormFields()
+    let subFormFields = deform.subForms()
 
     for (let key of allFields) {
         if (subFormFields.indexOf(key) >= 0) {
-            let { subFormDefinition, noRecordMatching } = deform.subForm(key)
+            let { definition: subFormDefinition, noRecordMatching } = deform.subForm(key)
             let type = deform.type(key)
             let matchedSuggestedRecords = []
 
@@ -68,14 +68,16 @@ export function createFormState<T>(subFormDefinition: T, current: T, original?: 
                     // no record matching mean we align records strictly by index
                     if (noRecordMatching) suggestedSubForm = suggested && suggested[key] && suggested[key][ix]
 
-                    // find matching sub form by ensuring all fields (except subforms) match
                     else if (currentSubForm) {
+                        let subDeform = new DeForm(subFormDefinition)
+                        let matchFields = subDeform.keys()
 
-                        let nonSubFormFields = difference(allFields, subFormFields)
+                        // if there are no key fields defined, we'll match by all non-subform fields
+                        if (matchFields.length == 0) matchFields = difference(allFields, subFormFields)
 
                         suggestedSubForm = suggested && suggested[key] && 
                             forceCast<Array<any>>(suggested[key]).find((subForm) => {
-                                return nonSubFormFields.every(field => subForm && (subForm[field] == currentSubForm[field]) )
+                                return matchFields.every(field => subForm && (subForm[field] == currentSubForm[field]) )
                             })
                     }
 

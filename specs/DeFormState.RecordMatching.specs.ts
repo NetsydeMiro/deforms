@@ -24,7 +24,7 @@ describe("createFormState Record Matching", () => {
                 aString: string
                 aBoolean: boolean
                 aNumber: number
-                @attribute.subForm(new DefaultDefinition())
+                @attribute.subForm({ definition: new DefaultDefinition()})
                 aSubFormArray?: Array<TestInterface>
             }
 
@@ -101,6 +101,83 @@ describe("createFormState Record Matching", () => {
             expect(formState.aSubFormArray[5].aString.suggested).to.equal(suggested.aSubFormArray[4].aString)
             expect(formState.aSubFormArray[5].aBoolean.suggested).to.equal(suggested.aSubFormArray[4].aBoolean)
             expect(formState.aSubFormArray[5].aNumber.suggested).to.equal(suggested.aSubFormArray[4].aNumber)
+        })
+    })
+
+
+    describe("key field record matching", () => {
+        beforeEach(() => {
+            class KeyFieldDefinition implements TestInterface {
+                @attribute.key()
+                aString: string
+                @attribute.key()
+                aBoolean: boolean
+                aNumber: number
+
+                @attribute.subForm({definition: new KeyFieldDefinition()})
+                aSubFormArray?: Array<TestInterface>
+            }
+
+            current = {
+                aString: 'dummy',
+                aBoolean: true, 
+                aNumber: 1, 
+                aSubFormArray: [
+                    {aString: 'record 1', aBoolean: true, aNumber: 1}, 
+                    {aString: 'record 2', aBoolean: false, aNumber: 2}, 
+                    {aString: 'record 3', aBoolean: null, aNumber: 3}
+                ]
+            }
+
+            suggested = {
+                aString: 'dummy',
+                aBoolean: true, 
+                aNumber: 1, 
+                aSubFormArray: [
+                    {aString: 'record 3', aBoolean: null, aNumber: 5},                  // key match, nonKey difference
+                    {aString: 'record 2, partial match', aBoolean: false, aNumber: 2},  // varied key 1
+                    {aString: 'record 1', aBoolean: true, aNumber: 3, aSubFormArray: []}, // key match, nonKey differences
+                    {aString: 'record 2', aBoolean: true, aNumber: 1},                 // varied key 2
+                ]
+            }
+
+            formState = createFormState(new KeyFieldDefinition(), current, undefined, suggested)
+        })
+        it('aligns suggested records that are a key match', () => {
+            // 1st current record matches 3rd suggested
+            expect(formState.aSubFormArray[0].aString.suggested).to.equal(suggested.aSubFormArray[2].aString)
+            expect(formState.aSubFormArray[0].aBoolean.suggested).to.equal(suggested.aSubFormArray[2].aBoolean)
+            expect(formState.aSubFormArray[0].aNumber.suggested).to.equal(suggested.aSubFormArray[2].aNumber)
+
+            // 3rd current record matches 1st suggested
+            expect(formState.aSubFormArray[2].aString.suggested).to.equal(suggested.aSubFormArray[0].aString)
+            expect(formState.aSubFormArray[2].aBoolean.suggested).to.equal(suggested.aSubFormArray[0].aBoolean)
+            expect(formState.aSubFormArray[2].aNumber.suggested).to.equal(suggested.aSubFormArray[0].aNumber)
+        })
+        it('leaves current records with key differences unmatched', () => {
+            // 2nd record has no key match
+            expect(formState.aSubFormArray[1].aString.suggested).to.be.undefined
+            expect(formState.aSubFormArray[1].aBoolean.suggested).to.be.undefined
+            expect(formState.aSubFormArray[1].aNumber.suggested).to.be.undefined
+        })
+        it('places suggested records that have not matched at end of subform collection', () => {
+            // 2nd suggested record did not match 
+            expect(formState.aSubFormArray[3].aString.current).to.be.undefined
+            expect(formState.aSubFormArray[3].aBoolean.current).to.be.undefined
+            expect(formState.aSubFormArray[3].aNumber.current).to.be.undefined
+
+            expect(formState.aSubFormArray[3].aString.suggested).to.equal(suggested.aSubFormArray[1].aString)
+            expect(formState.aSubFormArray[3].aBoolean.suggested).to.equal(suggested.aSubFormArray[1].aBoolean)
+            expect(formState.aSubFormArray[3].aNumber.suggested).to.equal(suggested.aSubFormArray[1].aNumber)
+
+            // 4th suggested record did not match 
+            expect(formState.aSubFormArray[4].aString.current).to.be.undefined
+            expect(formState.aSubFormArray[4].aBoolean.current).to.be.undefined
+            expect(formState.aSubFormArray[4].aNumber.current).to.be.undefined
+
+            expect(formState.aSubFormArray[4].aString.suggested).to.equal(suggested.aSubFormArray[3].aString)
+            expect(formState.aSubFormArray[4].aBoolean.suggested).to.equal(suggested.aSubFormArray[3].aBoolean)
+            expect(formState.aSubFormArray[4].aNumber.suggested).to.equal(suggested.aSubFormArray[3].aNumber)
         })
     })
 })

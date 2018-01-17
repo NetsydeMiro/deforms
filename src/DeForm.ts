@@ -2,13 +2,18 @@ import Value from './Value'
 import DeScriber, { DeScanner } from './DeScriber'
 import DeFormState, { createFormState } from './DeFormState'
 
-enum FieldType {
+enum AttributeType {
+    Key, 
     SubForm
 }
 
+interface FieldAttribute {
+    isKey?: boolean
+}
+
 interface SubFormAttribute {
-    subFormDefinition: any
-    noRecordMatching: boolean
+    definition: any
+    noRecordMatching?: boolean
 }
 
 export class DeFormAttribute<T> {
@@ -18,12 +23,12 @@ export class DeFormAttribute<T> {
         this._scribe = new DeScriber<T>()
     }
 
-    subForm(subFormDefinition: any, noRecordMatching=false){
-        let attribute: SubFormAttribute = {
-            subFormDefinition, 
-            noRecordMatching
-        }
-        return this._scribe.attribute(FieldType.SubForm, attribute)
+    subForm(attribute: SubFormAttribute = { definition: {}, noRecordMatching: false }) {
+        return this._scribe.attribute(AttributeType.SubForm, attribute)
+    }
+
+    key() {
+        return this._scribe.attribute(AttributeType.Key, true)
     }
 }
 
@@ -39,11 +44,15 @@ export class DeForm<T> {
     }
 
     subForm(subFormField: keyof T): SubFormAttribute {
-        return this._scanner.attribute(FieldType.SubForm, subFormField)
+        return this._scanner.attribute(AttributeType.SubForm, subFormField)
     }
 
-    subFormFields(): Array<keyof T> {
-        return this._scanner.attributed(FieldType.SubForm) || []
+    subForms(): Array<keyof T> {
+        return this._scanner.attributed(AttributeType.SubForm) || []
+    }
+
+    keys(): Array<keyof T> {
+        return this._scanner.attributed(AttributeType.Key) || []
     }
 
     formState(current: T, original?: T, suggested?: T): DeFormState<T> {

@@ -19,7 +19,7 @@ class TestDefinition implements TestInterface {
     aBoolean: boolean
     aNumber: number
     aDate: Date
-    @attribute.subForm(new TestDefinition())
+    @attribute.subForm({ definition: new TestDefinition()})
     aSubForm?: TestInterface
 }
 

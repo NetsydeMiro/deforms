@@ -42,7 +42,13 @@ export class DeScanner<DescribedInterface> {
         return relation.value
     }
 
-    attributed(attribute: Attribute): Array<keyof DescribedInterface> {
+    /* perhaps for later, when we want to filter on attribute values
+    attributed<AttributeType>(attribute: Attribute, predicate?: (attributeValue: AttributeType) => boolean): Array<keyof DescribedInterface> {
+        return this.related(attribute)
+    }
+    */
+
+    attributed<AttributeType>(attribute: Attribute): Array<keyof DescribedInterface> {
         return this.related(attribute)
     }
 
