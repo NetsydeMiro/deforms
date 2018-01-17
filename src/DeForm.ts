@@ -6,6 +6,11 @@ enum FieldType {
     SubForm
 }
 
+interface SubFormAttribute {
+    subFormDefinition: any
+    noRecordMatching: boolean
+}
+
 export class DeFormAttribute<T> {
     private _scribe: DeScriber<T>
 
@@ -13,8 +18,12 @@ export class DeFormAttribute<T> {
         this._scribe = new DeScriber<T>()
     }
 
-    subForm<S>(subFormDefinition: S){
-        return this._scribe.attribute(FieldType.SubForm, subFormDefinition)
+    subForm(subFormDefinition: any, noRecordMatching=false){
+        let attribute: SubFormAttribute = {
+            subFormDefinition, 
+            noRecordMatching
+        }
+        return this._scribe.attribute(FieldType.SubForm, attribute)
     }
 }
 
@@ -29,7 +38,7 @@ export class DeForm<T> {
         return this._scanner.type(field)
     }
 
-    subFormDefinition(subFormField: keyof T) {
+    subForm(subFormField: keyof T): SubFormAttribute {
         return this._scanner.attribute(FieldType.SubForm, subFormField)
     }
 

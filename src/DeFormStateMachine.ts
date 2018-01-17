@@ -1,4 +1,4 @@
-import { clone, isUndefined } from './utility'
+import { clone } from './utility'
 import DeFormState, { DeFormStatify } from './DeFormState'
 
 interface FormSelectorStep {
@@ -34,18 +34,6 @@ export class DeFormStateMachine<T> {
             }
         }
 
-        return newState
-    }
-
-    setSelected(formState: DeFormState<T>, isSelected = true): DeFormState<T> {
-        let newState = clone(formState)
-        newState.isSelected = isSelected
-        return newState
-    }
-
-    setDeleted(formState: DeFormState<T>, isDeleted = true): DeFormState<T> {
-        let newState = clone(formState)
-        newState.isDeleted = isDeleted
         return newState
     }
 }

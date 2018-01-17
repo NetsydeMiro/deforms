@@ -115,40 +115,4 @@ describe("DeFormState", () => {
             })
         })
     })
-    describe("setSelected", () => {
-        it("sets selected true by default", () => {
-            expect(testState.isSelected).to.not.be.ok
-            let newState = deformStateMachine.setSelected(testState)
-            expect(newState.isSelected).to.be.true
-        })
-        it("can set selected back to false", () => {
-            let newState = deformStateMachine.setSelected(testState)
-            expect(newState.isSelected).to.be.true
-            newState = deformStateMachine.setSelected(testState, false)
-            expect(newState.isSelected).to.be.false
-        })
-        it("doesn't alter the original state", () => {
-            expect(testState.isSelected).to.not.be.ok
-            let newState = deformStateMachine.setSelected(testState)
-            expect(testState.isSelected).to.not.be.ok
-        })
-    })
-    describe("setDeleted", () => {
-        it("sets deleted true by default", () => {
-            expect(testState.isDeleted).to.not.be.ok
-            let newState = deformStateMachine.setDeleted(testState)
-            expect(newState.isDeleted).to.be.true
-        })
-        it("can set deleted back to false", () => {
-            let newState = deformStateMachine.setDeleted(testState)
-            expect(newState.isDeleted).to.be.true
-            newState = deformStateMachine.setDeleted(testState, false)
-            expect(newState.isDeleted).to.be.false
-        })
-        it("doesn't alter the original state", () => {
-            expect(testState.isDeleted).to.not.be.ok
-            let newState = deformStateMachine.setDeleted(testState)
-            expect(testState.isDeleted).to.not.be.ok
-        })
-    })
 })

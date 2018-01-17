@@ -1,5 +1,3 @@
-import { isUndefined } from './utility'
-
 export class Value<T> {
 
     constructor(
@@ -9,7 +7,7 @@ export class Value<T> {
         public isHidden?: boolean) { }
 
     get isEditing(): boolean {
-        return !isUndefined(this.original)
+        return this.original !== undefined
     }
 
     get hasChange(): boolean {
@@ -17,7 +15,7 @@ export class Value<T> {
     }
 
     get hasSuggestedChange(): boolean {
-        return !isUndefined(this.suggested) && this.current !== this.suggested
+        return this.suggested !== undefined && this.current !== this.suggested
     }
 }
 

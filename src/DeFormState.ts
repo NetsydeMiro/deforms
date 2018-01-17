@@ -1,7 +1,6 @@
-import { forceCast } from './utility'
+import { forceCast, union, difference } from './utility'
 import Value from './Value'
 import DeForm from './DeForm'
-import { debug } from 'util';
 
 // adapted from https://stackoverflow.com/questions/46333496/typescript-complex-mapped-types-that-extract-generic
 // Hacked, since conditional mapped types are not yet part of the Typescript language spec
@@ -42,41 +41,72 @@ export type DeFormStatify<T> = {
 interface DeFormStateFields<T> {
     isSelected?: boolean
     isDeleted?: boolean
+    isNew?: boolean
+    isSuggested?: boolean
 }
 
 export type DeFormState<T> = DeFormStatify<T> & DeFormStateFields<T>
 
 export function createFormState<T>(subFormDefinition: T, current: T, original?: T, suggested?: T): DeFormState<T> {
-    let value = {}
+    let formState = forceCast<DeFormState<T>>({})
 
     let deform = new DeForm<any>(subFormDefinition)
+    let allFields = union(current && Object.keys(current), original && Object.keys(original), suggested && Object.keys(suggested))
     let subFormFields = deform.subFormFields()
 
-    for (let key in current) {
+    for (let key of allFields) {
         if (subFormFields.indexOf(key) >= 0) {
-            let subFormDefinition = deform.subFormDefinition(key)
+            let { subFormDefinition, noRecordMatching } = deform.subForm(key)
             let type = deform.type(key)
+            let matchedSuggestedRecords = []
 
             if (type == Array) {
-                // subform array
-                value[key.toString()] = (forceCast<Array<any>>(current[key])).map((current, ix) => {
+                // subform array formed from current values
+                let currentRecords = current && current[key] && (forceCast<Array<any>>(current[key])).map((currentSubForm, ix) => {
+                    let suggestedSubForm
+
+                    // no record matching mean we align records strictly by index
+                    if (noRecordMatching) suggestedSubForm = suggested && suggested[key] && suggested[key][ix]
+
+                    // find matching sub form by ensuring all fields (except subforms) match
+                    else if (currentSubForm) {
+
+                        let nonSubFormFields = difference(allFields, subFormFields)
+
+                        suggestedSubForm = suggested && suggested[key] && 
+                            forceCast<Array<any>>(suggested[key]).find((subForm) => {
+                                return nonSubFormFields.every(field => subForm && (subForm[field] == currentSubForm[field]) )
+                            })
+                    }
+
+                    if (suggestedSubForm) matchedSuggestedRecords.push(suggestedSubForm)
+
                     return createFormState(subFormDefinition, 
-                        current, 
+                        currentSubForm, 
                         original && original[key] && original[key][ix], 
-                        suggested && suggested[key] && suggested[key][ix])
-                })
+                        suggestedSubForm) // && suggested[key] && suggested[key][ix])
+                }) || []
+
+                let suggestedRecords = suggested && suggested[key] && difference(forceCast<Array<any>>(suggested[key]), matchedSuggestedRecords).
+                    map(suggestedSubForm => createFormState(subFormDefinition, undefined, undefined, suggestedSubForm)) || []
+
+                formState[key.toString()] = currentRecords.concat(suggestedRecords)
             }
             else {
                 // single embedded subform
-                value[key.toString()] = createFormState(subFormDefinition, current[key], original && original[key], suggested && suggested[key])
+                formState[key.toString()] = createFormState(subFormDefinition, current[key], original && original[key], suggested && suggested[key])
             }
         }
         else {
-            value[key.toString()] = new Value(current[key], original && original[key], suggested && suggested[key])
+            formState[key.toString()] = new Value(current && current[key], original && original[key], suggested && suggested[key])
         }
     }
+    
+    if (current && original === undefined) formState.isNew = true
+    else if (original && current === undefined) formState.isDeleted = true
+    else if (suggested && current === undefined && original === undefined) formState.isSuggested = true
 
-    return value as DeFormState<T>
+    return formState
 }
 
 export default DeFormState
