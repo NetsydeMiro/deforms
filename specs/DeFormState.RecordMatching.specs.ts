@@ -21,9 +21,15 @@ describe("createFormState Record Matching", () => {
     describe("default record matching", () => {
         beforeEach(() => {
             class DefaultDefinition implements TestInterface {
+                @attribute.field()
                 aString: string
+
+                @attribute.field()
                 aBoolean: boolean
+
+                @attribute.field()
                 aNumber: number
+
                 @attribute.subForm({ definition: new DefaultDefinition()})
                 aSubFormArray?: Array<TestInterface>
             }
@@ -108,10 +114,13 @@ describe("createFormState Record Matching", () => {
     describe("key field record matching", () => {
         beforeEach(() => {
             class KeyFieldDefinition implements TestInterface {
-                @attribute.key()
+                @attribute.field({isKey: true})
                 aString: string
-                @attribute.key()
+
+                @attribute.field({isKey: true})
                 aBoolean: boolean
+
+                @attribute.field()
                 aNumber: number
 
                 @attribute.subForm({definition: new KeyFieldDefinition()})

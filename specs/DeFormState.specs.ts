@@ -15,9 +15,13 @@ interface TestInterface {
 let attribute = new DeFormAttribute<TestDefinition>()
 
 class TestDefinition implements TestInterface {
+    @attribute.field()
     aString: string
+    @attribute.field()
     aBoolean: boolean
+    @attribute.field()
     aNumber: number
+    @attribute.field()
     aDate: Date
     @attribute.subForm({ definition: new TestDefinition()})
     aSubForm?: TestInterface

@@ -9,18 +9,31 @@ interface Relation<DescribedInterface> {
     relatedFields?: Array<keyof DescribedInterface>
 }
 
-type Attribute = string | number
+type AttributeName = string | number
 
-function getAttributeGroup(attribute: Attribute) {
+function getAttributeGroup(attribute: AttributeName) {
     return "_group_" + attribute
 }
 
 export class DeScriber<DescribedInterface> {
-    attribute = (attribute: Attribute, value: any) => {
-        return this.relation(attribute, value)
+    attribute(attribute: AttributeName, value: any) 
+    attribute(attribute: AttributeName, value: any, attribute2: AttributeName, value2: any) 
+    attribute(attribute: AttributeName, value: any, attribute2: AttributeName, value2: any, ...remainingAttributeValuePairs: Array<any>) 
+
+    attribute(...attributeValuePairs: Array<any>) {
+        return function(obj: any, field: keyof DescribedInterface) {
+            for (let ix = 0; ix < attributeValuePairs.length; ix += 2) {
+                let attribute = attributeValuePairs[ix]
+                let value = attributeValuePairs[ix + 1]
+
+                Reflect.defineMetadata(attribute, value, obj, field)
+                let attributedFields = Reflect.getMetadata(getAttributeGroup(attribute), obj) || []
+                Reflect.defineMetadata(getAttributeGroup(attribute), attributedFields.concat(field), obj)
+            }
+        }
     }
 
-    relation(attribute: Attribute, value: any, ...relatedFields: Array<keyof DescribedInterface>) {
+    relation(attribute: AttributeName, value: any, ...relatedFields: Array<keyof DescribedInterface>) {
         return function(obj: any, field: keyof DescribedInterface) {
             let description: Relation<DescribedInterface> = { relatedFields, value }
             Reflect.defineMetadata(attribute, description, obj, field)
@@ -37,27 +50,21 @@ export class DeScanner<DescribedInterface> {
         return Reflect.getMetadata(METADATA_KEY.DESIGN_TYPE, this.described, field)
     }
 
-    attribute(attribute: Attribute, field: keyof DescribedInterface): any {
-        let relation = Reflect.getMetadata(attribute, this.described, field) as Relation<DescribedInterface>
-        return relation.value
+    attribute(attribute: AttributeName, field: keyof DescribedInterface): any {
+        let value = Reflect.getMetadata(attribute, this.described, field) 
+        return value
     }
 
-    /* perhaps for later, when we want to filter on attribute values
-    attributed<AttributeType>(attribute: Attribute, predicate?: (attributeValue: AttributeType) => boolean): Array<keyof DescribedInterface> {
-        return this.related(attribute)
-    }
-    */
-
-    attributed<AttributeType>(attribute: Attribute): Array<keyof DescribedInterface> {
+    attributed<AttributeType>(attribute: AttributeName): Array<keyof DescribedInterface> {
         return this.related(attribute)
     }
 
-    relation(attribute: Attribute, field: keyof DescribedInterface): Relation<DescribedInterface> {
+    relation(attribute: AttributeName, field: keyof DescribedInterface): Relation<DescribedInterface> {
         let relation = Reflect.getMetadata(attribute, this.described, field) as Relation<DescribedInterface>
         return relation
     }
 
-    related(attribute: Attribute): Array<keyof DescribedInterface> {
+    related(attribute: AttributeName): Array<keyof DescribedInterface> {
         let related = Reflect.getMetadata(getAttributeGroup(attribute), this.described) 
         return related 
     }

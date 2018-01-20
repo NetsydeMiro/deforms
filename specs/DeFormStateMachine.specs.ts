@@ -42,7 +42,10 @@ let original: TestInterface = {
 }
 
 class TestDefinition implements TestInterface {
+    @attribute.field()
     aString: string
+
+    @attribute.field()
     aNumber: number
 
     @attribute.subForm({ definition: new TestDefinition() })
@@ -59,7 +62,7 @@ let deformStateMachine = new DeFormStateMachine(testDefinition)
 
 let testState: DeFormState<TestInterface> 
 
-describe("DeFormState", () => {
+describe("DeFormStateMachine", () => {
     beforeEach(() => {
         testState = deform.formState(current, original)
     })
@@ -81,6 +84,11 @@ describe("DeFormState", () => {
                 let newState = deformStateMachine.set(testState, 'aString', 'new value')
                 expect(testState.aString.suggested).to.be.undefined
             })
+            it("doesn't alter/clone subforms", () => {
+                let newState = deformStateMachine.set(testState, 'aString', 'new value')
+                expect(newState.aSubForm).to.equal(testState.aSubForm)
+                expect(newState.aSubFormArray).to.equal(testState.aSubFormArray)
+            })
         })
         describe('subforms', () => {
             it("sets the subform value", () => {
@@ -99,6 +107,10 @@ describe("DeFormState", () => {
                 let newState = deformStateMachine.set(testState, 'aString', 'new value', [{field: 'aSubForm'}])
                 expect(testState.aSubForm.aString.suggested).to.be.undefined
             })
+            it("doesn't alter/clone other subforms", () => {
+                let newState = deformStateMachine.set(testState, 'aString', 'new value', [{field: 'aSubForm'}])
+                expect(newState.aSubFormArray).to.equal(testState.aSubFormArray)
+            })
         })
         describe('subform arrays', () => {
             it("sets the array value", () => {
@@ -112,6 +124,11 @@ describe("DeFormState", () => {
             it("only alters targetted array index", () => {
                 let newState = deformStateMachine.set(testState, 'aString', 'new value', [{field: 'aSubFormArray', index: 0}])
                 expect(newState.aSubFormArray[1].aString.current).to.equal('currentSubArrayString2')
+            })
+            it("doesn't alter/clone other subforms", () => {
+                let newState = deformStateMachine.set(testState, 'aString', 'new value', [{field: 'aSubFormArray', index: 0}])
+                expect(newState.aSubForm).to.equal(testState.aSubForm)
+                expect(newState.aSubFormArray[1]).to.equal(testState.aSubFormArray[1])
             })
         })
     })

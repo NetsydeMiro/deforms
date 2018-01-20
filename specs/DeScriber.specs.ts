@@ -5,6 +5,7 @@ import DeScriber, { DeScanner } from '../src/DeScriber'
 
 enum EnumAttributeType {
     FieldDescription, 
+    FieldDescription2, 
     RelatedField,
     SiblingField,
 }
@@ -34,7 +35,7 @@ class TestClass implements TestInterface {
     @scriber.relation(EnumAttributeType.SiblingField, 'lucky number is a sibling to string and bool', 'aString', 'aBoolean')
     aNumber: number
 
-    @scriber.attribute(EnumAttributeType.FieldDescription, 'This is a date')
+    @scriber.attribute(EnumAttributeType.FieldDescription, 'This is a date', EnumAttributeType.FieldDescription2, 'Added some extra info here')
     aDate: Date
 }
 
@@ -54,6 +55,12 @@ describe("DeScriber/DeScanner", () => {
         it("sets the attribute", () => {
             let description = scanner.attribute(EnumAttributeType.FieldDescription, 'aString')
             expect(description).to.equal('This is a string')
+        })
+        it("can set multiple attributes", () => {
+            let description = scanner.attribute(EnumAttributeType.FieldDescription, 'aDate')
+            expect(description).to.equal('This is a date')
+            let description2 = scanner.attribute(EnumAttributeType.FieldDescription2, 'aDate')
+            expect(description2).to.equal('Added some extra info here')
         })
     })
     describe("setRelation", () => {

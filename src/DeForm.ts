@@ -3,6 +3,7 @@ import DeScriber, { DeScanner } from './DeScriber'
 import DeFormState, { createFormState } from './DeFormState'
 
 enum AttributeType {
+    Field, 
     Key, 
     SubForm
 }
@@ -27,8 +28,8 @@ export class DeFormAttribute<T> {
         return this._scribe.attribute(AttributeType.SubForm, attribute)
     }
 
-    key() {
-        return this._scribe.attribute(AttributeType.Key, true)
+    field(attribute: FieldAttribute = { isKey: false }) {
+        return this._scribe.attribute(AttributeType.Field, true, AttributeType.Key, attribute.isKey)
     }
 }
 
@@ -51,8 +52,14 @@ export class DeForm<T> {
         return this._scanner.attributed(AttributeType.SubForm) || []
     }
 
+    fields(): Array<keyof T> {
+        return this._scanner.attributed(AttributeType.Field) || []
+    }
+
     keys(): Array<keyof T> {
-        return this._scanner.attributed(AttributeType.Key) || []
+        let fields = this._scanner.attributed(AttributeType.Key) || []
+        let keys = fields.filter(f => this._scanner.attribute(AttributeType.Key, f))
+        return keys
     }
 
     formState(current: T, original?: T, suggested?: T): DeFormState<T> {

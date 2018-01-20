@@ -51,8 +51,12 @@ export function createFormState<T>(formDefinition: T, current: T, original?: T, 
     let formState = forceCast<DeFormState<T>>({})
 
     let deform = new DeForm<any>(formDefinition)
-    let allFields = union(current && Object.keys(current), original && Object.keys(original), suggested && Object.keys(suggested))
+
+    // this won't work if inputs are all null or undefined
+    // let allFields = union(current && Object.keys(current), original && Object.keys(original), suggested && Object.keys(suggested))
+    let fields = deform.fields()
     let subFormFields = deform.subForms()
+    let allFields = fields.concat(subFormFields)
 
     for (let key of allFields) {
         if (subFormFields.indexOf(key) >= 0) {
@@ -89,6 +93,7 @@ export function createFormState<T>(formDefinition: T, current: T, original?: T, 
                         suggestedSubForm) // && suggested[key] && suggested[key][ix])
                 }) || []
 
+                // subform array formed from unmatched suggested values
                 let suggestedRecords = suggested && suggested[key] && difference(forceCast<Array<any>>(suggested[key]), matchedSuggestedRecords).
                     map(suggestedSubForm => createFormState(subFormDefinition, undefined, undefined, suggestedSubForm)) || []
 
@@ -96,7 +101,9 @@ export function createFormState<T>(formDefinition: T, current: T, original?: T, 
             }
             else {
                 // single embedded subform
-                formState[key.toString()] = createFormState(subFormDefinition, current[key], original && original[key], suggested && suggested[key])
+                if (current && current[key] || suggested && suggested[key]) {
+                    formState[key.toString()] = createFormState(subFormDefinition, current && current[key], original && original[key], suggested && suggested[key])
+                }
             }
         }
         else {
