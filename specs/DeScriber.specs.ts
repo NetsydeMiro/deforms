@@ -39,61 +39,102 @@ class TestClass implements TestInterface {
     aDate: Date
 }
 
-let testDefinition = new TestClass()
-let scanner = new DeScanner(testDefinition)
+let instanceScanner: DeScanner<TestClass>
+let classScanner: DeScanner<TestClass>
 
 describe("DeScriber/DeScanner", () => {
+    beforeEach(() => {
+        instanceScanner = new DeScanner(new TestClass())
+        classScanner = new DeScanner(TestClass)
+    })
     describe("setAttribute", () => {
         it("sets the type (string)", () => {
-            let typ = scanner.type('aString')
+            let typ = instanceScanner.type('aString')
+            expect(typ).to.equal(String)
+
+            typ = classScanner.type('aString')
             expect(typ).to.equal(String)
         })
         it("sets the type (Date)", () => {
-            let typ = scanner.type('aDate')
+            let typ = instanceScanner.type('aDate')
+            expect(typ).to.equal(Date)
+
+            typ = classScanner.type('aDate')
             expect(typ).to.equal(Date)
         })
         it("sets the attribute", () => {
-            let description = scanner.attribute(EnumAttributeType.FieldDescription, 'aString')
+            let description = instanceScanner.attribute(EnumAttributeType.FieldDescription, 'aString')
+            expect(description).to.equal('This is a string')
+
+            description = classScanner.attribute(EnumAttributeType.FieldDescription, 'aString')
             expect(description).to.equal('This is a string')
         })
         it("can set multiple attributes", () => {
-            let description = scanner.attribute(EnumAttributeType.FieldDescription, 'aDate')
+            let description = instanceScanner.attribute(EnumAttributeType.FieldDescription, 'aDate')
             expect(description).to.equal('This is a date')
-            let description2 = scanner.attribute(EnumAttributeType.FieldDescription2, 'aDate')
+
+            let description2 = instanceScanner.attribute(EnumAttributeType.FieldDescription2, 'aDate')
+            expect(description2).to.equal('Added some extra info here')
+
+            description = classScanner.attribute(EnumAttributeType.FieldDescription, 'aDate')
+            expect(description).to.equal('This is a date')
+
+            description2 = classScanner.attribute(EnumAttributeType.FieldDescription2, 'aDate')
             expect(description2).to.equal('Added some extra info here')
         })
     })
     describe("setRelation", () => {
         it("sets the type (Boolean)", () => {
-            let typ = scanner.type('aBoolean')
+            let typ = instanceScanner.type('aBoolean')
+            expect(typ).to.equal(Boolean)
+
+            typ = classScanner.type('aBoolean')
             expect(typ).to.equal(Boolean)
         })
         it("sets the type (Number)", () => {
-            let typ = scanner.type('aNumber')
+            let typ = instanceScanner.type('aNumber')
+            expect(typ).to.equal(Number)
+
+            typ = classScanner.type('aNumber')
             expect(typ).to.equal(Number)
         })
         it("sets the relation", () => {
-            let description = scanner.relation(EnumAttributeType.RelatedField, 'aBoolean')
+            let description = instanceScanner.relation(EnumAttributeType.RelatedField, 'aBoolean')
+            expect(description.relatedFields).to.deep.equal(['aString'])
+
+            description = classScanner.relation(EnumAttributeType.RelatedField, 'aBoolean')
             expect(description.relatedFields).to.deep.equal(['aString'])
         })
         it("sets the relation to multiple fields", () => {
-            let description = scanner.relation(EnumAttributeType.SiblingField, 'aNumber')
+            let description = instanceScanner.relation(EnumAttributeType.SiblingField, 'aNumber')
+            expect(description.relatedFields).to.deep.equal(['aString', 'aBoolean'])
+
+            description = classScanner.relation(EnumAttributeType.SiblingField, 'aNumber')
             expect(description.relatedFields).to.deep.equal(['aString', 'aBoolean'])
         })
         it("sets the value along with the relation", () => {
-            let description = scanner.relation(EnumAttributeType.SiblingField, 'aNumber')
+            let description = instanceScanner.relation(EnumAttributeType.SiblingField, 'aNumber')
+            expect(description.value).to.equal('lucky number is a sibling to string and bool')
+
+            description = classScanner.relation(EnumAttributeType.SiblingField, 'aNumber')
             expect(description.value).to.equal('lucky number is a sibling to string and bool')
         })
     })
     describe("getAttributed", () => {
         it('gets all fields marked with that attribute type', () => {
-            let fields = scanner.attributed(EnumAttributeType.FieldDescription)
+            let fields = instanceScanner.attributed(EnumAttributeType.FieldDescription)
+            expect(fields).to.have.members(['aDate', 'aString'])
+
+            fields = classScanner.attributed(EnumAttributeType.FieldDescription)
             expect(fields).to.have.members(['aDate', 'aString'])
         })
     })
     describe("getRelated", () => {
         it('gets all fields marked with that relation type', () => {
-            let fields = scanner.related(EnumAttributeType.RelatedField)
+            let fields = instanceScanner.related(EnumAttributeType.RelatedField)
+            expect(fields).to.have.members(['aBoolean', 'anotherString'])
+
+            fields = classScanner.related(EnumAttributeType.RelatedField)
             expect(fields).to.have.members(['aBoolean', 'anotherString'])
         })
     })

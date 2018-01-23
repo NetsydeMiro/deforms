@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { isFunction } from './utility'
 
 const METADATA_KEY = {
     DESIGN_TYPE: 'design:type', 
@@ -43,8 +44,14 @@ export class DeScriber<DescribedInterface> {
     }
 }
 
+export type InstanceOrClass<DescribedInterface> = DescribedInterface | (new () => DescribedInterface)
+
 export class DeScanner<DescribedInterface> {
-    constructor(private described: DescribedInterface) {}
+    constructor(private described: InstanceOrClass<DescribedInterface>) {
+        if (isFunction(described)) {
+            this.described = described.prototype
+        }
+    }
 
     type(field: keyof DescribedInterface) {
         return Reflect.getMetadata(METADATA_KEY.DESIGN_TYPE, this.described, field)
