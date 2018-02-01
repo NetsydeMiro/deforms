@@ -60,7 +60,7 @@ export function createFormState<T>(formDefinition: T, current: T, original?: T, 
 
     for (let key of allFields) {
         if (subFormFields.indexOf(key) >= 0) {
-            let { definition: subFormDefinition, noRecordMatching } = deform.subForm(key)
+            let { definition: subFormDefinition, omitRecordMatching } = deform.subForm(key)
             let type = deform.type(key)
             let matchedSuggestedRecords = []
 
@@ -70,7 +70,7 @@ export function createFormState<T>(formDefinition: T, current: T, original?: T, 
                     let suggestedSubForm
 
                     // no record matching mean we align records strictly by index
-                    if (noRecordMatching) suggestedSubForm = suggested && suggested[key] && suggested[key][ix]
+                    if (omitRecordMatching) suggestedSubForm = suggested && suggested[key] && suggested[key][ix]
 
                     else if (currentSubForm) {
                         let subDeform = new DeForm(subFormDefinition)

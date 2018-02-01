@@ -70,13 +70,30 @@ describe("DeFormStateMachine Record Editing", () => {
         expect(testState.aSubFormArray[2].aString.current).to.be.undefined
         expect(testState.aSubFormArray[2].aString.original).to.be.undefined
         expect(testState.aSubFormArray[2].aString.suggested).to.equal('suggestedSubArrayString1')
+
+        expect(testState.aSubFormArray[3]).to.be.undefined
     })
     describe("add", () => {
         it("adds a new subform", () => {
-            /*
             let newState = deformStateMachine.add(testState, 'aSubFormArray')
-            expect(newState.aSubFormArray[3].current).to.equal('new value')
-            */
+            expect(newState.aSubFormArray[3]).to.not.be.undefined
+            expect(newState.aSubFormArray[3].isNew).to.be.true
+        })
+        it("does not change input state", () => {
+            let newState = deformStateMachine.add(testState, 'aSubFormArray')
+            expect(testState.aSubFormArray[3]).to.be.undefined
+        })
+        it("adds a specific subform", () => {
+            let newSubForm: TestInterface = {
+                aString: 'New Record!'
+            }
+
+            let newState = deformStateMachine.add(testState, 'aSubFormArray', newSubForm)
+            expect(newState.aSubFormArray[3]).to.not.be.undefined
+            expect(newState.aSubFormArray[3].isNew).to.be.true
+            expect(newState.aSubFormArray[3].aString.current).to.equal('New Record!')
+            expect(newState.aSubFormArray[3].aString.suggested).to.be.undefined
+            expect(newState.aSubFormArray[3].aString.original).to.be.undefined
         })
     })
 })

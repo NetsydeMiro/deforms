@@ -14,7 +14,7 @@ interface FieldAttribute {
 
 interface SubFormAttribute {
     definition: any
-    noRecordMatching?: boolean
+    omitRecordMatching?: boolean
 }
 
 export class DeFormAttribute<T> {
@@ -24,7 +24,7 @@ export class DeFormAttribute<T> {
         this._scribe = new DeScriber<T>()
     }
 
-    subForm(attribute: SubFormAttribute = { definition: {}, noRecordMatching: false }) {
+    subForm(attribute: SubFormAttribute = { definition: {}, omitRecordMatching: false }) {
         return this._scribe.attribute(AttributeType.SubForm, attribute)
     }
 
