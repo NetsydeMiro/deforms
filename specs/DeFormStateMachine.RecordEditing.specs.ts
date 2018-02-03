@@ -95,5 +95,19 @@ describe("DeFormStateMachine Record Editing", () => {
             expect(newState.aSubFormArray[3].aString.suggested).to.be.undefined
             expect(newState.aSubFormArray[3].aString.original).to.be.undefined
         })
+        it("aligns a specific matching subform", function() {
+            this.skip('record alignment not yet implemented')
+
+            let newSubForm: TestInterface = {
+                aString: 'suggestedSubArrayString1'
+            }
+
+            let newState = deformStateMachine.add(testState, 'aSubFormArray', newSubForm)
+            expect(newState.aSubFormArray[3]).to.be.undefined
+            expect(newState.aSubFormArray[2].isNew).to.be.true
+            expect(newState.aSubFormArray[2].aString.current).to.equal('suggestedSubArrayString1')
+            expect(newState.aSubFormArray[3].aString.suggested).to.equal('suggestedSubArrayString1')
+            expect(newState.aSubFormArray[3].aString.original).to.be.undefined
+        })
     })
 })

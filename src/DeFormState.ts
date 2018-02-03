@@ -1,5 +1,5 @@
 import { forceCast, union, difference } from './utility'
-import Value from './Value'
+import Value, { ValueInterface } from './Value'
 import DeForm from './DeForm'
 
 // adapted from https://stackoverflow.com/questions/46333496/typescript-complex-mapped-types-that-extract-generic
@@ -47,13 +47,52 @@ interface DeFormStateFields<T> {
 
 export type DeFormState<T> = DeFormStatify<T> & DeFormStateFields<T>
 
+export function getFormValue<T>(formDefinition: T, formState: DeFormState<T>): ValueInterface<T> {
+    let formValue: ValueInterface<any> = { current: {}, suggested: {}, original: {} } 
+
+    let deform = new DeForm<any>(formDefinition)
+
+    let fields = deform.fields()
+    let subFormFields = deform.subForms()
+    let allFields = fields.concat(subFormFields)
+
+    for (let key of allFields) {
+        if (formState[key]) {
+            if (subFormFields.indexOf(key) >= 0) {
+                let { definition: subFormDefinition, omitRecordMatching } = deform.subForm(key)
+                let type = deform.type(key)
+
+                if (type == Array) {
+                    // subform array formed from current values
+                    let values = formState[key].map(subFormState => getFormValue(subFormDefinition, subFormState))
+                    formValue.current[key] = values.map(value => value.current)
+                    formValue.original[key] = values.map(value => value.original)
+                    formValue.suggested[key] = values.map(value => value.suggested)
+                }
+                else {
+                    // single embedded subform
+                    let value = getFormValue(subFormDefinition, formState[key])
+                    formValue.current[key] = value.current
+                    formValue.original[key] = value.original
+                    formValue.suggested[key] = value.suggested
+                }
+            }
+            else {
+                formValue.current[key] = formState[key].current 
+                formValue.original[key] = formState[key].original
+                formValue.suggested[key] = formState[key].suggested
+            }
+        }
+    }
+    
+    return formValue
+}
+
 export function createFormState<T>(formDefinition: T, current: T, original?: T, suggested?: T): DeFormState<T> {
     let formState = forceCast<DeFormState<T>>({})
 
     let deform = new DeForm<any>(formDefinition)
 
-    // this won't work if inputs are all null or undefined
-    // let allFields = union(current && Object.keys(current), original && Object.keys(original), suggested && Object.keys(suggested))
     let fields = deform.fields()
     let subFormFields = deform.subForms()
     let allFields = fields.concat(subFormFields)
@@ -116,6 +155,62 @@ export function createFormState<T>(formDefinition: T, current: T, original?: T, 
     else if (suggested && current === undefined && original === undefined) formState.isSuggested = true
 
     return formState
+}
+
+export function alignSuggested<T>(formDefinition: T, currentFormState: DeFormState<T>, suggested?: T): void {
+
+    let deform = new DeForm<any>(formDefinition)
+
+    let fields = deform.fields()
+    let subFormFields = deform.subForms()
+    let allFields = fields.concat(subFormFields)
+
+    for (let key of allFields) {
+        if (subFormFields.indexOf(key) >= 0) {
+            let { definition: subFormDefinition, omitRecordMatching } = deform.subForm(key)
+            let type = deform.type(key)
+            let matchedSuggestedRecords = []
+
+            if (type == Array) {
+                // subform array formed from current values
+                currentFormState && currentFormState[key] && (forceCast<Array<any>>(currentFormState[key])).forEach((currentSubFormState, ix) => {
+                    let suggestedSubForm
+
+                    // no record matching mean we align records strictly by index
+                    if (omitRecordMatching) suggestedSubForm = suggested && suggested[key] && suggested[key][ix]
+
+                    else if (currentSubFormState) {
+                        let subDeform = new DeForm(subFormDefinition)
+                        let matchFields = subDeform.keys()
+
+                        // if there are no key fields defined, we'll match by all non-subform fields
+                        if (matchFields.length == 0) matchFields = difference(allFields, subFormFields)
+
+                        suggestedSubForm = suggested && suggested[key] && 
+                            forceCast<Array<any>>(suggested[key]).find((subForm) => {
+                                return matchFields.every(field => subForm && (subForm[field] == currentSubFormState[field]) )
+                            })
+                    }
+
+                    if (suggestedSubForm) matchedSuggestedRecords.push(suggestedSubForm)
+
+                    alignSuggested(subFormDefinition, currentFormState[key][ix], suggestedSubForm)
+                })
+
+                // appened unmatched subform records to end of array
+                suggested && suggested[key] && 
+                    difference(forceCast<Array<any>>(suggested[key]), matchedSuggestedRecords).
+                    forEach(suggestedSubForm => currentFormState[key.toString()].push(createFormState(subFormDefinition, undefined, undefined, suggestedSubForm)))
+            }
+            else {
+                // single embedded subform
+                alignSuggested(subFormDefinition, currentFormState[key], suggested[key])
+            }
+        }
+        else {
+            if(suggested) currentFormState[key].suggested = suggested[key]
+        }
+    }
 }
 
 export default DeFormState

@@ -1,4 +1,10 @@
-export class Value<T> {
+export interface ValueInterface<T> {
+    current: T,
+    original?: T,
+    suggested?: T,
+}
+
+export class Value<T> implements ValueInterface<T> {
 
     constructor(
         public current: T,

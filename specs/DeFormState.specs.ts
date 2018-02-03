@@ -2,7 +2,8 @@ const { describe, it, beforeEach } = intern.getInterface('bdd')
 const { expect } = intern.getPlugin('chai')
 
 import { DeFormAttribute } from '../src/DeForm'
-import DeFormState, { createFormState } from '../src/DeFormState'
+import DeFormState, { createFormState, getFormValue } from '../src/DeFormState'
+import { ValueInterface } from '../src/Value'
 
 interface TestInterface {
     aString: string
@@ -69,6 +70,7 @@ let suggested: TestInterface = {
 }
 
 let formState: DeFormState<TestInterface> 
+let formValue: ValueInterface<TestInterface>
 
 describe("createFormState", () => {
     describe("defaults", () => {
@@ -145,6 +147,81 @@ describe("createFormState", () => {
             expect(formState.aSubForm.aBoolean.suggested).to.equal(suggested.aSubForm.aBoolean)
             expect(formState.aSubForm.aNumber.suggested).to.equal(suggested.aSubForm.aNumber)
             expect(formState.aSubForm.aDate.suggested).to.equal(suggested.aSubForm.aDate)
+        })
+    })
+})
+
+describe("getFormData", () => {
+    describe("defaults", () => {
+        beforeEach(() => {
+            formState = createFormState(testDefinition, current)
+            formValue = getFormValue(testDefinition, formState)
+        })
+        it('gets current values', () => {
+            expect(formValue.current.aString).to.equal(current.aString)
+            expect(formValue.current.aBoolean).to.equal(current.aBoolean)
+            expect(formValue.current.aNumber).to.equal(current.aNumber)
+            expect(formValue.current.aDate).to.equal(current.aDate)
+        })
+        it('gets current subform values', () => {
+            expect(formValue.current.aSubForm.aString).to.equal(current.aSubForm.aString)
+            expect(formValue.current.aSubForm.aBoolean).to.equal(current.aSubForm.aBoolean)
+            expect(formValue.current.aSubForm.aNumber).to.equal(current.aSubForm.aNumber)
+            expect(formValue.current.aSubForm.aDate).to.equal(current.aSubForm.aDate)
+        })
+        it('leaves originals undefined', () => {
+            expect(formValue.original.aString).to.be.undefined
+            expect(formValue.original.aBoolean).to.be.undefined
+            expect(formValue.original.aNumber).to.be.undefined
+            expect(formValue.original.aDate).to.be.undefined
+        })
+        it('leaves original subform values undefined', () => {
+            expect(formValue.original.aSubForm.aString).to.be.undefined
+            expect(formValue.original.aSubForm.aBoolean).to.be.undefined
+            expect(formValue.original.aSubForm.aNumber).to.be.undefined
+            expect(formValue.original.aSubForm.aDate).to.be.undefined
+        })
+        it('leaves suggesteds undefined', () => {
+            expect(formValue.suggested.aString).to.be.undefined
+            expect(formValue.suggested.aBoolean).to.be.undefined
+            expect(formValue.suggested.aNumber).to.be.undefined
+            expect(formValue.suggested.aDate).to.be.undefined
+        })
+        it('leaves suggested subform values undefined', () => {
+            expect(formValue.suggested.aSubForm.aString).to.be.undefined
+            expect(formValue.suggested.aSubForm.aBoolean).to.be.undefined
+            expect(formValue.suggested.aSubForm.aNumber).to.be.undefined
+            expect(formValue.suggested.aSubForm.aDate).to.be.undefined
+        })
+    })
+    describe("all values specified", () => {
+        beforeEach(() => {
+            formState = createFormState(testDefinition, current, original, suggested)
+            formValue = getFormValue(testDefinition, formState)
+        })
+        it('sets originals', () => {
+            expect(formValue.original.aString).to.equal(original.aString)
+            expect(formValue.original.aBoolean).to.equal(original.aBoolean)
+            expect(formValue.original.aNumber).to.equal(original.aNumber)
+            expect(formValue.original.aDate).to.equal(original.aDate)
+        })
+        it('sets original subform values', () => {
+            expect(formValue.original.aSubForm.aString).to.equal(original.aSubForm.aString)
+            expect(formValue.original.aSubForm.aBoolean).to.equal(original.aSubForm.aBoolean)
+            expect(formValue.original.aSubForm.aNumber).to.equal(original.aSubForm.aNumber)
+            expect(formValue.original.aSubForm.aDate).to.equal(original.aSubForm.aDate)
+        })
+        it('sets suggesteds', () => {
+            expect(formValue.suggested.aString).to.equal(suggested.aString)
+            expect(formValue.suggested.aBoolean).to.equal(suggested.aBoolean)
+            expect(formValue.suggested.aNumber).to.equal(suggested.aNumber)
+            expect(formValue.suggested.aDate).to.equal(suggested.aDate)
+        })
+        it('sets suggested subfrom values', () => {
+            expect(formValue.suggested.aSubForm.aString).to.equal(suggested.aSubForm.aString)
+            expect(formValue.suggested.aSubForm.aBoolean).to.equal(suggested.aSubForm.aBoolean)
+            expect(formValue.suggested.aSubForm.aNumber).to.equal(suggested.aSubForm.aNumber)
+            expect(formValue.suggested.aSubForm.aDate).to.equal(suggested.aSubForm.aDate)
         })
     })
 })
