@@ -7,10 +7,12 @@
     "test": "intern",
     "start": "intern serveOnly",
     "report_coverage": "cat coverage/lcov.info | coveralls",
-    "clean": "rm -rf build coverage", 
+    "clean": "rm -rf build coverage",
     "build": "tsc && tsc -p specs",
     "watch": "start tsc -w && start tsc -p specs -w",
-    "dev_win": "npm run watch && start npm run start && start http://localhost:9000/__intern"
+    "dev_win": "npm run watch && start npm run start && start http://localhost:9000/__intern",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "author": "Miro Koprnicky",
   "repository": {
@@ -25,6 +27,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "reflect-metadata": "^0.1.10"
-  }
+    "reflect-metadata": "^0.1.10",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
